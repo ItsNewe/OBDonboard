@@ -8,4 +8,4 @@ Install the corresponding ncurses library for your OS. that's it
 
 The planned physical build is as follows (i know, i'm not an expert at makind diagrams)
 
-![diagram](https://ibb.co/Ky1hqmG)
+![diagram](https://i.ibb.co/Bs13ZwP/Untitled-Diagram-1.png)
