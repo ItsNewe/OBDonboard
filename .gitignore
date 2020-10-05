@@ -6,6 +6,10 @@
 
 # CMake
 cmake-build-*/
+build/
+
+# VsCode
+.vscode/
 
 #cpp stuff
 
@@ -40,4 +44,3 @@ cmake-build-*/
 # Executables
 *.exe
 *.out
-*.app
