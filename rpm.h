@@ -1,11 +1,16 @@
 #include <curses.h>
 #include <cstring>
 #include <string>
+#include <algorithm>
+#include <climits>
+#include "serialCom.h"
+
 
 class Rpm {
 public:
-    void updateRPM(WINDOW *down, WINDOW *up);
+	Rpm();
+    void updateRPM(WINDOW *down, WINDOW *up, serialCom *s);
 private:
-    int currentRPM=0;
-    int restoreRPM=0;
+    unsigned int currentRPM=0;
+    unsigned int restoreRPM=0;
 };
