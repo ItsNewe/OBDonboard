@@ -6,10 +6,6 @@
 
 # CMake
 cmake-build-*/
-build/
-
-# VsCode
-.vscode/
 
 #cpp stuff
 
