@@ -16,7 +16,7 @@ int main()
 {
     WINDOW *up, *down, *up2;
 
-    auto *s = new serialCom("/dev/pts/2"); //Set serial port to be used here
+    auto *s = new serialCom("/dev/ttyAMA0"); //Set serial port to be used here
     signal(SIGINT, signalHandler);
     initscr();
     noecho();
@@ -52,7 +52,7 @@ int main()
     Rpm *rpm = new Rpm();
 
     do{
-        rpm->updateRPM(down, up);
+        rpm->updateRPM(down, up, s);
         std::string a = s->sendMessage("0104\r", 0);
         mvwprintw(up2, 2, 2, a.c_str());
         wrefresh(up);

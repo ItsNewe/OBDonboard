@@ -12,11 +12,17 @@ void Rpm::updateRPM(WINDOW *down, WINDOW *up, serialCom *s) {
     std::string rawData = s->sendMessage("010C\r", 0);
 
     //Clean raw data string
-    rawData.erase(std::remove(rawData.begin(), rawData.end(), ' '), rawData.end());
-    rawData.erase(std::remove(rawData.begin(), rawData.end(), '\r'), rawData.end());
-    rawData.erase(std::remove(rawData.begin(), rawData.end(), '>'), rawData.end());
+	/* THROWS OOR */
+    for (auto i = rawData.cbegin(); i!=rawData.cend(); i++){
+        if(*i==' ' || *i=='\r' || *i=='>'){
+            rawData.erase(i);
+        }
+    }
+    //rawData.erase(std::remove(rawData.begin(), rawData.end(), ' '), rawData.end());
+    //rawData.erase(std::remove(rawData.begin(), rawData.end(), '\r'), rawData.end());
+    //rawData.erase(std::remove(rawData.begin(), rawData.end(), '>'), rawData.end());
 
-    std::string paramA = rawData.substr(rawData.length()-4, 2); //Get first data byte
+	std::string paramA = rawData.substr(rawData.length()-4, 2); //Get first data byte
     std::string paramB = rawData.substr(rawData.length()-2, 2); //Get second data byte
 
     //Ugly cleanup nasty nasty
