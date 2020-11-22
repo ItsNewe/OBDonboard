@@ -10,27 +10,32 @@ void Rpm::updateRPM(WINDOW *down, WINDOW *up, serialCom *s) {
 
 
     std::string rawData = s->sendMessage("010C\r", 0);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    
+    if(rawData[0]!='7'){
+        printf("Invalid serial frame received, aborting"); //Move to serialCom?
+        return;
+    }
 
     //Clean raw data string
-	/* THROWS OOR */
     for (auto i = rawData.cbegin(); i!=rawData.cend(); i++){
-        if(*i==' ' || *i=='\r' || *i=='>'){
+        if(*i==' '){
             rawData.erase(i);
         }
     }
-    //rawData.erase(std::remove(rawData.begin(), rawData.end(), ' '), rawData.end());
-    //rawData.erase(std::remove(rawData.begin(), rawData.end(), '\r'), rawData.end());
-    //rawData.erase(std::remove(rawData.begin(), rawData.end(), '>'), rawData.end());
 
-	std::string paramA = rawData.substr(rawData.length()-4, 2); //Get first data byte
-    std::string paramB = rawData.substr(rawData.length()-2, 2); //Get second data byte
+    //rawData.erase(std::remove(rawData.begin(), rawData.end(), ' '), rawData.end());
+
+	std::string paramA = rawData.substr(9, 2); //Get first data byte
+    std::string paramB = rawData.substr(11, 2); //Get second data byte
 
     //Ugly cleanup nasty nasty
     restoreRPM=currentRPM;
     currentRPM=(256*std::stoul(paramA, nullptr, 16)+std::stoul(paramB, nullptr, 16))/4;
 
-	//Since both values are unsigned int, we need to check for ↓↓↓ underflow with this operation, else restoreRPM would contain a garbage value
-    restoreRPM=(!(restoreRPM-currentRPM>restoreRPM))?(restoreRPM-currentRPM):0;
+	//Since both values are unsigned int, we need to check for any underflow, or else restoreRPM would contain garbage
+    restoreRPM=(restoreRPM-currentRPM>0)? restoreRPM-currentRPM: 0;
 
     mvwprintw(up, 1, 1, std::to_string(currentRPM).c_str());
     wrefresh(up);
@@ -42,7 +47,7 @@ void Rpm::updateRPM(WINDOW *down, WINDOW *up, serialCom *s) {
     std::string c = "\r " + std::string(currentRPM/250, '|');
 	
 
-    if (this->currentRPM >= 7000) { //If actively in the redline, restore redline
+    if (this->currentRPM >= 7000) { //If actively in the redline, change color to indicate that
         wattron(down, COLOR_PAIR(3));
         mvwprintw(down, 1, 1, c.c_str());
         wattroff(down, COLOR_PAIR(3));

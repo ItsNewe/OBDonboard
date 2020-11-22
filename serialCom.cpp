@@ -24,16 +24,21 @@ serialCom::serialCom(const char *port) {
     this->tty.c_cflag &= ~CRTSCTS; //Disable flow control
     this->tty.c_cflag |= CREAD | CLOCAL; // Turn on READ & ignore ctrl lines (CLOCAL = 1)
     this->tty.c_lflag &= ~ICANON; //Disable canonical mode
+
     this->tty.c_lflag &= ~ECHO; // Disable echo
     this->tty.c_lflag &= ~ECHOE; // Disable erasure
     this->tty.c_lflag &= ~ECHONL; // Disable new-line echo
     this->tty.c_lflag &= ~ISIG; // Disable interpretation of INTR, QUIT and SUSP
+
     this->tty.c_iflag &= ~(IXON | IXOFF | IXANY); // Turn off s/w flow ctrl
-    this->tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL); // Disable any special handling of received bytes, receive raw data
+    this->tty.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | ICRNL | IGNCR); // Disable any special handling of received bytes, receive raw data
+
     this->tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes
     this->tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage RL feed
+
     this->tty.c_cc[VTIME] = 10;  // Wait for up to 1s (10 deciseconds), returning as soon as data is received.
     this->tty.c_cc[VMIN] = 0;
+
     // Set in/out baud rate to be 9600
     cfsetispeed(&this->tty, B9600);
     cfsetospeed(&this->tty, B9600);

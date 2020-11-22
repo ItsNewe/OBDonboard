@@ -1,6 +1,8 @@
 #include <curses.h>
 #include <cstring>
 #include <string>
+#include <chrono>
+#include <thread>
 #include "serialCom.h"
 
 class Rpm{
