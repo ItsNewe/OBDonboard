@@ -10,7 +10,7 @@ public:
 	Obd(serialCom *s);
 
 	//RPM
-	void updateRPM(WINDOW *down, WINDOW *up);
+	int updateRPM(WINDOW *down, WINDOW *up);
 
 	//Fuel
 	double getInstantFuel();

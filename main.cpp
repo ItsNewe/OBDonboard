@@ -1,7 +1,9 @@
 #include <curses.h>
+#include <iostream>
 #include <cstring>
 #include <string>
 #include <csignal>
+#include <stdexcept> //std::runtime_err
 #include "serialCom.h"
 #include "obd.h"
 
@@ -16,7 +18,13 @@ int main()
 {
 	WINDOW *up, *down, *up2;
 
-	auto *s = new serialCom("/dev/pts/3"); //Set serial port to be used here
+	serialCom *s={};
+	try{
+		s = new serialCom("/dev/pts/5"); //Set serial port to be used here
+	}catch(std::exception &e){
+		std::cout << e.what() << std::endl;
+	}
+	
 	signal(SIGINT, signalHandler);
 	initscr();
 	noecho();
@@ -36,9 +44,6 @@ int main()
 	box(down, ACS_VLINE, ACS_HLINE);
 	box(up2, ACS_VLINE, ACS_HLINE);
 
-	const char *msg = "Bonjour Golf :)";
-	mvwprintw(up, LINES/2, (COLS / 2) - (strlen(msg) / 2), msg);
-
 	//6*5 white RPM range + 1.5*5 redzone
 	mvwprintw(down, 1, 1, std::string( 30, '|').c_str());
 	wattron(down, COLOR_PAIR(2));
@@ -52,12 +57,13 @@ int main()
 	auto *obd = new Obd(s);
 
 	do{
-		obd->updateRPM(down, up);
+		int rpm = obd->updateRPM(down, up);
 		double maf = obd->getInstantFuel();
 
 		char temp[12]= {0};
 		snprintf(temp, sizeof(maf), "%.2f", maf);
 		mvwprintw(up2, 2, 2, strcat(temp, " l/100km"));
+		mvwprintw(up, 1, 1, std::to_string(rpm).c_str());
 
 		wrefresh(up);
 		wrefresh(up2);

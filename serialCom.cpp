@@ -7,7 +7,7 @@
 serialCom::serialCom(const char *port) {
 	this->sPort = open(port, O_RDWR);
 	if (sPort < 0) {
-		printf("Error %i while connecting to serial: %s", errno, strerror(errno));
+		throw std::runtime_error(fmt::format("Error {} while connecting to serial: {}", errno, strerror(errno)));
 	}
 
 	// Read in existing settings, and handle any error
@@ -15,7 +15,7 @@ serialCom::serialCom(const char *port) {
 	// must have been initialized with a call to tcgetattr() overwise behaviour
 	// is undefined
 	if (tcgetattr(sPort, &tty) != 0) {
-		printf("Error %i from tcgetattr: %s\n", errno, strerror(errno));
+		throw std::runtime_error(fmt::format("Error %i from tcgetattr: %s\n", errno, strerror(errno)));
 	}
 
 	this->tty.c_cflag &= ~PARENB; //No parity

@@ -8,17 +8,17 @@ Obd::Obd(serialCom *s){
 }
 
 //RPM
-void Obd::updateRPM(WINDOW *down, WINDOW *up) {
+int Obd::updateRPM(WINDOW *down, WINDOW *up) {
 	//TODO: Redline values stay stuck in the beggining area of the bar → bad division??
 
 
 	std::string rawData = s->sendMessage("010C\r", 0);
-	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	
 	if(rawData[0]!='7'){
-		printf("Invalid serial frame received, aborting"); //Move to serialCom?
-		return;
+		printf("Invalid serial frame received");
+		return -1;
 	}
 
 	rawData = s->cleanUpSerialFrame(rawData);
@@ -31,9 +31,6 @@ void Obd::updateRPM(WINDOW *down, WINDOW *up) {
 
 	//Since both values are unsigned int, we need to check for any underflow, or else restoreRPM would contain garbage
 	restoreRPM=(restoreRPM-currentRPM>0)? restoreRPM-currentRPM: 0;
-
-	mvwprintw(up, 1, 1, std::to_string(currentRPM).c_str());
-	wrefresh(up);
 
 
 	/*In the next block, we will redraw the whole bar, so we need to make use of \r
@@ -64,8 +61,9 @@ void Obd::updateRPM(WINDOW *down, WINDOW *up) {
 		} else {
 			wprintw(down, std::string(this->restoreRPM/250, '|').c_str());
 		}
-		restoreRPM ==0;
+		restoreRPM=0;
 	}
+	return currentRPM;
 }
 
 //FUEL

@@ -14,13 +14,18 @@
 #include <string>
 #include <vector>
 #include <curses.h>
+#include <stdexcept> //std::runtime_err
+#include <fmt/core.h>
 
 class serialCom {
 private:
 	int sPort;
 	struct termios tty;
+	
 public:
+	int status; //0 if init OK, else non-zero
 	char readBuf[260];
+	
 	explicit serialCom(const char *port);
 	std::string sendMessage(const char *msg, int responseSize);
 	std::string cleanUpSerialFrame(std::string data);
