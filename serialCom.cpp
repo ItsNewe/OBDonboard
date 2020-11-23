@@ -59,6 +59,7 @@ std::string serialCom::sendMessage(const char *msg, int responseSize) {
     write(this->sPort, msg, 5);
     int n = read(this->sPort, &this->readBuf, sizeof(readBuf));
 
+
     return std::string(readBuf).substr(0, n); //Convert char array to string
 }
 
@@ -67,3 +68,14 @@ void serialCom::closeDevice() {
     free(&this->tty);
 }
 
+std::string serialCom::cleanUpSerialFrame(std::string data){
+    //Clean raw data string
+    for (auto i = data.cbegin(); i!=data.cend(); i++){
+        if(*i==' '){
+            data.erase(i);
+        }
+    }
+
+    //rawData.erase(std::remove(rawData.begin(), rawData.end(), ' '), rawData.end());
+    return data;
+}

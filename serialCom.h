@@ -23,6 +23,7 @@ public:
     char readBuf[260];
     explicit serialCom(const char *port);
     std::string sendMessage(const char *msg, int responseSize);
+    std::string cleanUpSerialFrame(std::string data);
     void writeDevice(const char *msg);
     void closeDevice();
 };

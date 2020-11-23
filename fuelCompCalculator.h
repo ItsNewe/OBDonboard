@@ -3,10 +3,10 @@
 
 class FuelCompCalculator {
 public:
-    FuelCompCalculator(serialCom s);
-	float getInstantMaf();
+    FuelCompCalculator(serialCom *s);
+	double getInstantFuel();
 	int getVSS();
 private:
-	serialCom s;
+	serialCom *s;
 	unsigned int maf;
 };

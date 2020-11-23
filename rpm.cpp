@@ -18,19 +18,11 @@ void Rpm::updateRPM(WINDOW *down, WINDOW *up, serialCom *s) {
         return;
     }
 
-    //Clean raw data string
-    for (auto i = rawData.cbegin(); i!=rawData.cend(); i++){
-        if(*i==' '){
-            rawData.erase(i);
-        }
-    }
-
-    //rawData.erase(std::remove(rawData.begin(), rawData.end(), ' '), rawData.end());
+    rawData = s->cleanUpSerialFrame(rawData);
 
 	std::string paramA = rawData.substr(9, 2); //Get first data byte
     std::string paramB = rawData.substr(11, 2); //Get second data byte
 
-    //Ugly cleanup nasty nasty
     restoreRPM=currentRPM;
     currentRPM=(256*std::stoul(paramA, nullptr, 16)+std::stoul(paramB, nullptr, 16))/4;
 

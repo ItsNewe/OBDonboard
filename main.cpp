@@ -4,6 +4,7 @@
 #include <csignal>
 #include "rpm.h"
 #include "serialCom.h"
+#include "fuelCompCalculator.h"
 
 void signalHandler(int s){
     endwin();
@@ -16,7 +17,7 @@ int main()
 {
     WINDOW *up, *down, *up2;
 
-    auto *s = new serialCom("/dev/ttyAMA0"); //Set serial port to be used here
+    auto *s = new serialCom("/dev/pts/3"); //Set serial port to be used here
     signal(SIGINT, signalHandler);
     initscr();
     noecho();
@@ -49,12 +50,17 @@ int main()
 
     int stopC=0;
     timeout(-1);
-    Rpm *rpm = new Rpm();
+    auto *rpm = new Rpm();
+    auto *fuel = new FuelCompCalculator(s);
 
     do{
         rpm->updateRPM(down, up, s);
-        std::string a = s->sendMessage("0104\r", 0);
-        mvwprintw(up2, 2, 2, a.c_str());
+        double maf = fuel->getInstantFuel();
+
+        char temp[6]= {0};
+        snprintf(temp, sizeof(maf), "%.2f l/100km", maf);
+        mvwprintw(up2, 2, 2, temp);
+        
         wrefresh(up);
         wrefresh(up2);
         wrefresh(down);
