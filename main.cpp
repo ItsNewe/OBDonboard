@@ -2,9 +2,8 @@
 #include <cstring>
 #include <string>
 #include <csignal>
-#include "rpm.h"
 #include "serialCom.h"
-#include "fuelCompCalculator.h"
+#include "obd.h"
 
 void signalHandler(int s){
     endwin();
@@ -50,17 +49,16 @@ int main()
 
     int stopC=0;
     timeout(-1);
-    auto *rpm = new Rpm();
-    auto *fuel = new FuelCompCalculator(s);
+    auto *obd = new Obd(s);
 
     do{
-        rpm->updateRPM(down, up, s);
-        double maf = fuel->getInstantFuel();
+        obd->updateRPM(down, up);
+        double maf = obd->getInstantFuel();
 
-        char temp[6]= {0};
-        snprintf(temp, sizeof(maf), "%.2f l/100km", maf);
-        mvwprintw(up2, 2, 2, temp);
-        
+        char temp[12]= {0};
+        snprintf(temp, sizeof(maf), "%.2f", maf);
+        mvwprintw(up2, 2, 2, strcat(temp, " l/100km"));
+
         wrefresh(up);
         wrefresh(up2);
         wrefresh(down);

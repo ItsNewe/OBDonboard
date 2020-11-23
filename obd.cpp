@@ -1,11 +1,14 @@
-#include "rpm.h"
+#include "obd.h"
 
-Rpm::Rpm(){
-	this->currentRPM=0;
+Obd::Obd(serialCom *s){
+    this->s=s;
+
+    this->currentRPM=0;
 	this->restoreRPM=0;
 }
 
-void Rpm::updateRPM(WINDOW *down, WINDOW *up, serialCom *s) {
+//RPM
+void Obd::updateRPM(WINDOW *down, WINDOW *up) {
 	//TODO: Redline values stay stuck in the beggining area of the bar → bad division??
 
 
@@ -65,3 +68,21 @@ void Rpm::updateRPM(WINDOW *down, WINDOW *up, serialCom *s) {
     }
 }
 
+//FUEL
+
+double Obd::getInstantFuel()
+{
+	std::string speedRaw = s->sendMessage("010D\r", 0);
+	std::string mafRaw = s->sendMessage("0110\r", 0);
+
+	speedRaw = s->cleanUpSerialFrame(speedRaw);
+	mafRaw = s->cleanUpSerialFrame(mafRaw);
+
+	std::string paramA = mafRaw.substr(9, 2);  //Get first data byte
+	std::string paramB = mafRaw.substr(11, 2); //Get second data byte
+	int speed = stoi(speedRaw.substr(9, 2));
+
+	double maf = (256*std::stoul(paramA, nullptr, 16)+std::stoul(paramB, nullptr, 16))/100;
+	double result = (speed*7.718)/maf;
+	return result;
+}
