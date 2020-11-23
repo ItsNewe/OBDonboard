@@ -23,6 +23,7 @@ int main()
 		s = new serialCom("/dev/pts/5"); //Set serial port to be used here
 	}catch(std::exception &e){
 		std::cout << e.what() << std::endl;
+		return -1;
 	}
 	
 	signal(SIGINT, signalHandler);
