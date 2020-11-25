@@ -24,7 +24,7 @@ private:
 	
 public:
 	int status; //0 if init OK, else non-zero
-	char readBuf[260];
+	char readBuf[255];
 	
 	explicit serialCom(const char *port);
 	std::string sendMessage(const char *msg, int responseSize);

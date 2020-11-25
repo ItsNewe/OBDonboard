@@ -20,7 +20,7 @@ int main()
 
 	serialCom *s={};
 	try{
-		s = new serialCom("/dev/pts/5"); //Set serial port to be used here
+		s = new serialCom("/dev/serial0"); //Set serial port to be used here
 	}catch(std::exception &e){
 		std::cout << e.what() << std::endl;
 		return -1;
@@ -54,16 +54,16 @@ int main()
 	wrefresh(down);
 
 	int stopC=0;
-	timeout(-1);
+	timeout(500);
 	auto *obd = new Obd(s);
 
 	do{
 		int rpm = obd->updateRPM(down, up);
-		double maf = obd->getInstantFuel();
+//		double maf = obd->getInstantFuel();
 
-		char temp[12]= {0};
-		snprintf(temp, sizeof(maf), "%.2f", maf);
-		mvwprintw(up2, 2, 2, strcat(temp, " l/100km"));
+//		char temp[12]= {0};
+//		snprintf(temp, sizeof(maf), "%.2f", maf);
+//		mvwprintw(up2, 2, 2, strcat(temp, " l/100km"));
 		mvwprintw(up, 1, 1, std::to_string(rpm).c_str());
 
 		wrefresh(up);

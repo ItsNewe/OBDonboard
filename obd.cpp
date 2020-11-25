@@ -16,10 +16,10 @@ int Obd::updateRPM(WINDOW *down, WINDOW *up) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	
-	if(rawData[0]!='7'){
-		printf("Invalid serial frame received");
-		return -1;
-	}
+/*	if(rawData[0]!='7' || rawData[0]!='>'){
+*		printf("Invalid serial frame received");
+*		return -1;
+	}*/
 
 	rawData = s->cleanUpSerialFrame(rawData);
 
@@ -38,7 +38,6 @@ int Obd::updateRPM(WINDOW *down, WINDOW *up) {
 	*/
 	std::string c = "\r " + std::string(currentRPM/250, '|');
 	
-
 	if (this->currentRPM >= 7000) { //If actively in the redline, change color to indicate that
 		wattron(down, COLOR_PAIR(3));
 		mvwprintw(down, 1, 1, c.c_str());
