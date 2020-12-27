@@ -36,7 +36,7 @@ serialCom::serialCom(const char *port) {
 	this->tty.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes
 	this->tty.c_oflag &= ~ONLCR; // Prevent conversion of newline to carriage RL feed
 
-	this->tty.c_cc[VTIME] = 10;  // Wait for up to 1s (10 deciseconds), returning as soon as data is received.
+	this->tty.c_cc[VTIME] = 20;  // Wait for up to 1s (10 deciseconds), returning as soon as data is received.
 	this->tty.c_cc[VMIN] = 0;
 
 	// Set in/out baud rate to be 9600
@@ -47,6 +47,12 @@ serialCom::serialCom(const char *port) {
 	if (tcsetattr(sPort, TCSANOW, &tty) != 0) {
 		printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
 	}
+	
+	sendMessage("ATE0\r", 0); //Disable echo
+	sendMessage("ATH0\r", 0); //Disable headers
+	sendMessage("ATS0\r", 0); //No spaces
+	sendMessage("ATAL\r", 0); //Allow long messages
+	sendMessage("ATTP0\r", 0); //Detect best OBD protocol
 }
 
 void serialCom::writeDevice(const char *msg) {
@@ -56,7 +62,7 @@ void serialCom::writeDevice(const char *msg) {
 std::string serialCom::sendMessage(const char *msg, int responseSize) {
 	memset(&this->readBuf, 0, sizeof(this->readBuf)); //Zero out buffer
 
-	write(this->sPort, msg, 5);
+	write(this->sPort, msg, sizeof(msg)+1);
 	int n = read(this->sPort, &this->readBuf, sizeof(readBuf));
 
 
