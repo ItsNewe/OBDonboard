@@ -1,4 +1,5 @@
 #include "obd.h"
+#include <iostream>
 
 Obd::Obd(serialCom *s){
 	this->s=s;
@@ -16,16 +17,9 @@ int Obd::updateRPM(WINDOW *down, WINDOW *up) {
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	
-/*	if(rawData[0]!='7' || rawData[0]!='>'){
-*		printf("Invalid serial frame received");
-*		return -1;
-	}*/
-
-	rawData = s->cleanUpSerialFrame(rawData);
-
-	std::string paramA = rawData.substr(9, 2); //Get first data byte
-	std::string paramB = rawData.substr(11, 2); //Get second data byte
-
+	std::string paramA = rawData.substr(4, 2); //Get first data byte
+	std::string paramB = rawData.substr(6, 2); //Get second data byte
+//	std::cout << "raw: " << rawData << "\nA: " << paramA << "\nB: " << paramB;
 	restoreRPM=currentRPM;
 	currentRPM=(256*std::stoul(paramA, nullptr, 16)+std::stoul(paramB, nullptr, 16))/4;
 
@@ -72,12 +66,13 @@ double Obd::getInstantFuel()
 	std::string speedRaw = s->sendMessage("010D\r", 0);
 	std::string mafRaw = s->sendMessage("0110\r", 0);
 
-	speedRaw = s->cleanUpSerialFrame(speedRaw);
-	mafRaw = s->cleanUpSerialFrame(mafRaw);
+	if(mafRaw=="NO DATA"){
+		return -1.0;
+	}
+	std::string paramA = mafRaw.substr(4, 2);  //Get first data byte
+	std::string paramB = mafRaw.substr(6, 2); //Get second data byte
 
-	std::string paramA = mafRaw.substr(9, 2);  //Get first data byte
-	std::string paramB = mafRaw.substr(11, 2); //Get second data byte
-	int speed = stoi(speedRaw.substr(9, 2));
+	int speed = stoi(speedRaw.substr(4, 2));
 
 	double maf = (256*std::stoul(paramA, nullptr, 16)+std::stoul(paramB, nullptr, 16))/100;
 	double result = (speed*7.718)/maf;

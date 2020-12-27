@@ -48,9 +48,11 @@ serialCom::serialCom(const char *port) {
 		printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
 	}
 	
-	sendMessage("ATE0\r", 0);
-	sendMessage("ATH1\r", 0);
-	sendMessage("ATSP0\r", 0);
+	sendMessage("ATE0\r", 0); //Disable echo
+	sendMessage("ATH0\r", 0); //Disable headers
+	sendMessage("ATS0\r", 0); //No spaces
+	sendMessage("ATAL\r", 0); //Allow long messages
+	sendMessage("ATTP0\r", 0); //Detect best OBD protocol
 }
 
 void serialCom::writeDevice(const char *msg) {
