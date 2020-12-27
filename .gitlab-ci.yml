@@ -1,0 +1,16 @@
+# use the official gcc image, based on debian
+# can use verions as well, like gcc:5.2
+# see https://hub.docker.com/_/gcc/
+image: gcc
+
+build:
+  stage: build
+  before_script:
+    - apt update -y && apt install -y make cmake autoconf libncurses5-dev libfmt-dev
+  script:
+    - mkdir build && cd build
+    - cmake ..
+    - make
+  artifacts:
+    paths:
+      - build/OBDOnBoard
