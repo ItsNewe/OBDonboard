@@ -48,40 +48,38 @@ serialCom::serialCom(const char *port) {
 		printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
 	}
 	
-	sendMessage("ATE0\r", 0); //Disable echo
-	sendMessage("ATH0\r", 0); //Disable headers
-	sendMessage("ATS0\r", 0); //No spaces
-	sendMessage("ATAL\r", 0); //Allow long messages
-	sendMessage("ATTP0\r", 0); //Detect best OBD protocol
+	sendMessage("ATE0\r"); //Disable echo
+	sendMessage("ATH0\r"); //Disable headers
+	sendMessage("ATS0\r"); //No spaces
+	sendMessage("ATAL\r"); //Allow long messages
+	sendMessage("ATTP0\r"); //Detect best OBD protocol
+
+	//Is preceding BUS INIT..[.] ignored or is it still in the frame?
+	//needs testing, i'll assume it's ignored for now
+	std::string status = sendMessage("0100\r", 500); //Initialize OBD connection by sending a command
+	if(status=="NO DATA" || status=="UNABLE TO CONNECT"){
+		throw new std::runtime_error(fmt::format("Serial read error: device returned {}", status));
+	}
 }
 
 void serialCom::writeDevice(const char *msg) {
 	write(this->sPort, msg, sizeof(msg));
 }
 
-std::string serialCom::sendMessage(const char *msg, int responseSize) {
+std::string serialCom::sendMessage(const char *msg, int pause) {
 	memset(&this->readBuf, 0, sizeof(this->readBuf)); //Zero out buffer
 
 	write(this->sPort, msg, sizeof(msg)+1);
+	if(pause){
+		std::this_thread::sleep_for(std::chrono::milliseconds(pause));
+	}
 	int n = read(this->sPort, &this->readBuf, sizeof(readBuf));
-
-
+	
+	
 	return std::string(readBuf).substr(0, n); //Convert char array to string
 }
 
 void serialCom::closeDevice() {
 	close(this->sPort);
 	free(&this->tty);
-}
-
-std::string serialCom::cleanUpSerialFrame(std::string data){
-	//Clean raw data string
-	for (auto i = data.cbegin(); i!=data.cend(); i++){
-		if(*i==' '){
-			data.erase(i);
-		}
-	}
-
-	//rawData.erase(std::remove(rawData.begin(), rawData.end(), ' '), rawData.end());
-	return data;
 }
