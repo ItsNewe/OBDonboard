@@ -5,6 +5,7 @@
 #include <string>
 #include <csignal>
 #include <stdexcept> //std::runtime_err
+#include <iomanip>
 #include "serialCom.h"
 #include "obd.h"
 
@@ -12,7 +13,7 @@ void signalHandler(int s){
 	endwin();
 }
 
-int writeConfToFile(std::string *s={}, int *r={}){
+int writeConfToFile(std::string* s={}, int* r={}){
 	/*
 	* HEX FILE: FORMAT LL[D*L]
 	* L=2 bytes for the length
@@ -22,17 +23,25 @@ int writeConfToFile(std::string *s={}, int *r={}){
 	printf("entered config lkoop\n");
 	std::ofstream file;
 	file.open("config.obdo");
+
 	if(file.is_open()){
+
 		fmt::print("{} : {}\n{} : {}\n", s->length(), *s, sizeof(*r), *r);
+
 		file << std::hex << s->length()*2;
+		
 		for(char& c : *s){
 			file << std::hex << (int)c;
 		}
-		file << std::hex << sizeof(*r) << std::hex << *r;
 
-		//THIS SHIT DOESNT WORK!!!!!!!!!
+		char buf[sizeof(*r)] = {};
+		memcpy(&buf, r, sizeof(*r));
+		file << std::hex << sizeof(*r) << std::setfill('0') << std::setw(sizeof(*r)) << std::hex << buf;
+
+		
 	}
-
+	
+	file.close();
 	return 0;
 }
 
@@ -42,10 +51,11 @@ int writeConfToFile(std::string *s={}, int *r={}){
 int main(int argc, char *argv[])
 {
 	//Handle cli arguments
-	std::string serialDeviceName={};
-	int dataRefreshRate={};
+	std::string serialDeviceName="/dev/serial0";
+	int dataRefreshRate=100;
 	int v;
-	
+	writeConfToFile(&serialDeviceName, &dataRefreshRate);
+
 	while((v = getopt(argc, argv, "d:r:s")) != -1){
 		switch(v){
 		case 'd':
