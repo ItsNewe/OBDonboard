@@ -62,7 +62,9 @@ void serialCom::writeDevice(const char *msg) {
 std::string serialCom::sendMessage(const char *msg, int responseSize) {
 	memset(&this->readBuf, 0, sizeof(this->readBuf)); //Zero out buffer
 
-	write(this->sPort, msg, sizeof(msg)+1);
+	//sizeof(const char*) adds nonexistent null characters at the beggining of the string? wtf
+	//Anyways, use strlen instead of sizeof()
+	write(this->sPort, msg, strlen(msg));
 	int n = read(this->sPort, &this->readBuf, sizeof(readBuf));
 
 
