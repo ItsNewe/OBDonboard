@@ -16,6 +16,8 @@
 #include <curses.h>
 #include <stdexcept> //std::runtime_err
 #include <fmt/core.h>
+#include <thread>
+#include <chrono>
 
 class serialCom {
 private:
@@ -27,7 +29,7 @@ public:
 	char readBuf[255];
 	
 	explicit serialCom(const char *port);
-	std::string sendMessage(const char *msg, int responseSize);
+	std::string sendMessage(const char *msg, int pause=0);
 	std::string cleanUpSerialFrame(std::string data);
 	void writeDevice(const char *msg);
 	void closeDevice();

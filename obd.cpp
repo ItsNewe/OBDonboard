@@ -12,14 +12,13 @@ Obd::Obd(serialCom *s){
 int Obd::updateRPM(WINDOW *down, WINDOW *up) {
 	//TODO: Redline values stay stuck in the beggining area of the bar → bad division??
 
-
 	std::string rawData = s->sendMessage("010C\r", 0);
 	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	
-	std::string paramA = rawData.substr(4, 2); //Get first data byte
-	std::string paramB = rawData.substr(6, 2); //Get second data byte
-//	std::cout << "raw: " << rawData << "\nA: " << paramA << "\nB: " << paramB;
+	std::string paramA = rawData.substr(rawData.length()-4, 2); //Get first data byte
+	std::string paramB = rawData.substr(rawData.length()-2, 2); //Get second data byte
+
 	restoreRPM=currentRPM;
 	currentRPM=(256*std::stoul(paramA, nullptr, 16)+std::stoul(paramB, nullptr, 16))/4;
 
